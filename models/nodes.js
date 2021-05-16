@@ -6,8 +6,17 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true
         },
         url: {
-            type: DataTypes.STRING
+            type: DataTypes.TEXT
+        },
+        label: {
+            type: DataTypes.TEXT
+        },
+        keywords: {
+            type: DataTypes.TEXT
         }
+    }, {
+        timestamps: false
     });
+
     return Node;
 };

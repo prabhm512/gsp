@@ -37,12 +37,12 @@ app.use(
 );
 
 // Static directory
-app.use(express.static("client/public"));
+app.use(express.static("public"));
 
 // Routes
 // =============================================================
-// require("./routes/apiRoutes")(app);
-require("./routes/htmlRoutes")(app);
+require("./routes/apiRoutes")(app);
+// require("./routes/htmlRoutes")(app);
 
 // Starts the server to begin listening
 // =============================================================

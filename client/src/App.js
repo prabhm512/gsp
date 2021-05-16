@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { Grid } from '@material-ui/core';
-
+import API from './utils/api';
 
 function App() {
 
-  const [state, setState] = useState("http://www.adject.com/");
+  const [state, setState] = useState("");
+  const [result, setResult] = useState([]);
 
   const scrapeData = (event) => {
     let url = event.target.parentNode.firstChild.value;
@@ -16,6 +17,12 @@ function App() {
     setState(event.target.value);
   }
 
+  useEffect(() => {
+    API.getUrls().then(data => {
+      setResult(data.data);
+    });
+  }, []);
+
   return (
     <div className="App">
       <h1>Google Search Prototype</h1>
@@ -25,13 +32,14 @@ function App() {
           <button onClick={scrapeData}>Search</button>
         </Grid>
       </Grid>
+      <ol className="search-result">
+        {result.map(el => {
+          return <li>{el.url}</li>;
+        })}
+      </ol>
       <div className="footer">
         <h3>Prabh Singh, Trisha Raibal</h3>
       </div>
-      {/* <iframe title="test" name="iframe" style={{width: "70vw", height: "50vh"}}></iframe> */}
-      {/* <form target="iframe" method="GET" action="view-source:https://stackoverflow.com">
-        <button type="submit">Submit</button>
-      </form> */}
     </div>
   );
 }
