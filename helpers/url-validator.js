@@ -28,7 +28,8 @@ fs.createReadStream('data/gsp_url_mapping1.csv')
 
                 // Write records
                 // Add new column that conatains source code of valid url
-                writer.write({node_id: row.node_id, url: row.url, createdAt: row.createdAt, updatedAt: row.updatedAt, html: response.data})
+                // writer.write({node_id: row.node_id, url: row.url, createdAt: row.createdAt, updatedAt: row.updatedAt, html: response.data})
+                console.log(response);
             }
         }).catch(err => {
             // Increment invalid url counter
