@@ -24,10 +24,21 @@ fs.createReadStream('./data/valid-urls-with-keywords.csv')
         // Only extract text from remaining body
         let bodyWithoutJS = $('body').text().trim();
 
-        // Update all rows containing html with just the text within the html body
-        if (bodyWithoutJS === "") {
+        // If no body is detected and string IS NOT html, add same keywords from keyword-scraper.js
+        if (bodyWithoutJS === "" && row.keywords.includes("<", 0) === false) {
             writer.write({node_id: row.node_id, url: row.url, label: 'WEBPAGE', keywords: row.keywords});
-        } else {
+        } 
+
+        // If no body is detected and string IS html, remove row from csv because the page does not contain anything
+        else if(bodyWithoutJS === "" && row.keywords.includes("<", 0)) {
+            console.log(row.node_id + ": " + row.url + " removed");
+        }
+        // Remove all rows with this string
+        else if (bodyWithoutJS === "This site requires JavaScript and Cookies to be enabled. Please change your browser settings or upgrade your browser.") {
+            console.log(row.node_id + ": " + row.url + " removed");
+        }
+        // Update all rows containing html with just the text within the html body
+        else {
             // remove all whitespaces from string
             let bodyWithoutJSAndWhitespaces = bodyWithoutJS.replace(/\s/g, "");
 
