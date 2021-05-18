@@ -16,6 +16,11 @@ function App() {
 
   const onInputChange = event => {
     setSearch(event.target.value);
+    if (event.keys === 13) {
+      event.preventDefault();
+      const wordsArr = search.split(" ");
+      getKeywordSpecificUrls(wordsArr);
+    }
   }
 
   const getKeywordSpecificUrls = (keywords) => {
@@ -140,6 +145,11 @@ function App() {
       })
     }
 
+    // const handleKeypress = event => {
+    //   //it triggers by pressing the enter key
+      
+    // };
+
   return (
     <div className="App">
       <h1>
@@ -153,14 +163,21 @@ function App() {
       <br></br>
       <Grid container spacing={3}>
         <Grid item xs={12} style={{margin: "auto"}}>
-          <input type="url" value={search} onChange={onInputChange}></input>
-          <Button variant="contained" color="primary" style={{margin: "0px 5px",}}onClick={() => {
-            const wordsArr = search.split(" ");
-            getKeywordSpecificUrls(wordsArr);
-          }}>Search</Button>
-          <Button variant="contained" color="secondary" onClick={() => {
-            window.location.reload();
-          }}>Stop Search</Button>
+          <form action="/">
+            <input type="text" value={search} onChange={onInputChange}></input>
+            <Button type="search" id="search-btn" 
+              variant="contained" 
+              color="primary" 
+              style={{margin: "0px 5px"}} 
+              onClick={(event) => {
+                event.preventDefault();
+                const wordsArr = search.split(" ");
+                getKeywordSpecificUrls(wordsArr);
+              }}>Search</Button>
+            <Button variant="contained" color="secondary" onClick={() => {
+              window.location.reload();
+            }}>Stop Search</Button>
+          </form>
         </Grid>
       </Grid>
       <br></br>
