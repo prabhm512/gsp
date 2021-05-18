@@ -9,6 +9,26 @@ writer.pipe(fs.createWriteStream('valid-urls-with-keywords-shortened.csv'), {fla
 
 let cntr = 0;
 
+// Remove all css within body by removing all text within curly braces
+function cleanString(dirty) {
+    let clean = ""
+    let bad = 0
+
+    for (let i=0; i<dirty.length; i++) {
+        if (dirty[i] === "{") {
+            bad += 1
+        }
+        else if (dirty[i] === "}") {
+            bad -= 1;
+        }
+        else if (bad === 0) {
+            clean += dirty[i];
+        }
+    }
+
+    return clean;
+}
+                
 fs.createReadStream('./data/valid-urls-with-keywords.csv')
     .pipe(csv())
     .on('data', async (row) => {
@@ -21,12 +41,22 @@ fs.createReadStream('./data/valid-urls-with-keywords.csv')
         // Remove all script tags in html body
         $('script').remove();
 
+        // Remove all style tags
+        $('style').remove();
+
+        // store title of page
+        // not all pages have a title
+        let pageTitle = $('title').text();
+        if (pageTitle === "" ) {
+            pageTitle = "No Title";
+        }
+
         // Only extract text from remaining body
         let bodyWithoutJS = $('body').text().trim();
 
         // If no body is detected and string IS NOT html, add same keywords from keyword-scraper.js
         if (bodyWithoutJS === "" && row.keywords.includes("<", 0) === false) {
-            writer.write({node_id: row.node_id, url: row.url, label: 'WEBPAGE', keywords: row.keywords});
+            writer.write({node_id: row.node_id, url: row.url, title: pageTitle, keywords: row.keywords});
         } 
 
         // If no body is detected and string IS html, remove row from csv because the page does not contain anything
@@ -39,10 +69,18 @@ fs.createReadStream('./data/valid-urls-with-keywords.csv')
         }
         // Update all rows containing html with just the text within the html body
         else {
-            // remove all whitespaces from string
-            let bodyWithoutJSAndWhitespaces = bodyWithoutJS.replace(/\s/g, "");
 
-            writer.write({node_id: row.node_id, url: row.url, label: 'WEBPAGE', keywords: bodyWithoutJSAndWhitespaces});
+            // convert multiple whitespaces into 1 whitespace and remove all CSS from string
+            let bodyWithoutJSAndMultipleWhitespaces = bodyWithoutJS.replace(/\s\s+/g, ' ');
+            let bodyWithoutJSAndMultipleWhitespaceAndCSS = cleanString(bodyWithoutJSAndMultipleWhitespaces);
+
+            // Convert multi-line text into single line so csv is cleaner
+            const strWithoutMulitpleLines = bodyWithoutJSAndMultipleWhitespaceAndCSS.replace(/([^\n]*)\n*/g, '$1');
+
+            // Replace special chars with "" as it causeses problems when csv is imported into mysql
+            const strWithoutMulitpleLinesAndSpecialChar = strWithoutMulitpleLines.replace(/[^\w\s]/gi,"");
+
+            writer.write({node_id: row.node_id, url: row.url, title: pageTitle, keywords: strWithoutMulitpleLinesAndSpecialChar});
         }
 
         cntr++;
