@@ -154,10 +154,13 @@ function App() {
       <Grid container spacing={3}>
         <Grid item xs={12} style={{margin: "auto"}}>
           <input type="url" value={search} onChange={onInputChange}></input>
-          <Button variant="contained" color="primary" onClick={() => {
+          <Button variant="contained" color="primary" style={{margin: "0px 5px",}}onClick={() => {
             const wordsArr = search.split(" ");
             getKeywordSpecificUrls(wordsArr);
           }}>Search</Button>
+          <Button variant="contained" color="secondary" onClick={() => {
+            window.location.reload();
+          }}>Stop Search</Button>
         </Grid>
       </Grid>
       <br></br>

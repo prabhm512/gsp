@@ -30,7 +30,6 @@ module.exports = function(app) {
         db.sequelize.query(queryString, {
             type: db.sequelize.QueryTypes.SELECT
         }).then(response => {
-            console.log(response);
             res.json(response);
         }).catch(err => {
             res.send('error: ' + err);
