@@ -20,13 +20,17 @@ module.exports = function(app) {
 
     // GET all nodes matching with keywords entered by user
     app.get("/api/nodes/:keywords", (req, res) => {
-        db.Node.findAll({
-            where: {
-                keywords: {
-                    [Op.like]: "%" + req.params.keywords + "%"
-                }
-            }
+        const keywordArr = req.params.keywords.split(",");
+        let queryString = "SELECT * FROM gsp.nodes n WHERE n.keywords LIKE '%" + keywordArr[0] + "%'";
+
+        for (let i=1; i<keywordArr.length; i++) {
+            queryString += " AND n.keywords LIKE '%" + keywordArr[i] + "%'";
+        };
+
+        db.sequelize.query(queryString, {
+            type: db.sequelize.QueryTypes.SELECT
         }).then(response => {
+            console.log(response);
             res.json(response);
         }).catch(err => {
             res.send('error: ' + err);

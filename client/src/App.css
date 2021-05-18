@@ -3,6 +3,10 @@
   overflow-x: hidden;
 }
 
+h1 {
+  font-size: 40px;;
+}
+
 .footer {
   background-color: black;
   color: white;
@@ -36,4 +40,8 @@
   text-align: right;
   margin-right: 40px;
   font-size: 20px;
+}
+
+input {
+  height: 30px;
 }

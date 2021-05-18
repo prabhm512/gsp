@@ -4,7 +4,7 @@ import './App.css';
 import { Grid } from '@material-ui/core';
 import API from './utils/api';
 import { add } from 'mathjs';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress, Button } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 
 function App() {
@@ -19,18 +19,20 @@ function App() {
   }
 
   const getKeywordSpecificUrls = (keywords) => {
+    // console.log(keywords);
     API.getKeywordSpecificUrls(keywords).then(data => {
       // Compute Pagerank if urls are returned
       if (data.data.length === 0) {
+        console.log("test");
         setResult([]);
-        setError("There are no results for " + keywords + ". Check your spelling or try different keywords.");
+        setError("There are no results for " + keywords.join(" ") + ". Check your spelling or try different keywords.");
       } else {
     
         const nodeIDs = [];
         const urls = [];
 
         // If a successful GET request is made, an array of results will be returned. 
-        // Otherwise it will be a strin 
+        // Otherwise it will be a string 
         if (Array.isArray(data.data)) {
           data.data.forEach(el => {
             // Need to make sure that each node has a corresponding URL with this data structure
@@ -41,6 +43,7 @@ function App() {
           setError("An error occurred. Please reach out to me at Prabh.M.Singh@student.uts.edu.au with a screenshot of this error");
         }
         setResult([]);
+        setError("");
         setShowLoader("inline-block");
         computePagerank(nodeIDs, urls);
       }
@@ -49,7 +52,7 @@ function App() {
 
   // ----------------Pagerank Computation (wihtout scaling factor)---------------- //
 
-  // Round 0 of pagerank iterations
+  // Round 0 and 1 of pagerank iterations
   const computePagerank = (nodeIDs, urls) => {
     // Suppose X is the node for which Pagerank is required to be computed 
 
@@ -151,15 +154,19 @@ function App() {
       <Grid container spacing={3}>
         <Grid item xs={12} style={{margin: "auto"}}>
           <input type="url" value={search} onChange={onInputChange}></input>
-          <button onClick={() => {
-            getKeywordSpecificUrls(search.trim());
-          }}>Search</button>
+          <Button variant="contained" color="primary" onClick={() => {
+            const wordsArr = search.split(" ");
+            getKeywordSpecificUrls(wordsArr);
+          }}>Search</Button>
         </Grid>
       </Grid>
       <br></br>
-      <div class="totalPages">
+      <div className="totalPages">
           <b>Total Pages:  <i>{result.length}</i></b>
       </div>
+      <ul type="none" className="search-result-error">
+        <div>{error}</div>
+      </ul>
       <CircularProgress style={{display: showLoader}} />
       <ul type="none" className="search-result">
         {result.map(el => {
@@ -168,9 +175,6 @@ function App() {
             <p>Pagerank: {el.pagerank}</p>
           </li>;
         })}
-      </ul>
-      <ul type="none" className="search-result-error">
-        <div>{error}</div>
       </ul>
       <div className="footer">
         <h3>Prabh Singh (13250093), Trisha Raibal (13472980)</h3>
