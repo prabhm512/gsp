@@ -8,9 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         url: {
             type: DataTypes.TEXT
         },
-        title: {
-            type: DataTypes.TEXT
-        },
         keywords: {
             type: DataTypes.TEXT
         }

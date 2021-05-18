@@ -4,11 +4,14 @@ import './App.css';
 import { Grid } from '@material-ui/core';
 import API from './utils/api';
 import { add } from 'mathjs';
+import { CircularProgress } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 
 function App() {
 
   const [search, setSearch] = useState("");
   const [result, setResult] = useState([]);
+  const [showLoader, setShowLoader] = useState("none");
   const [error, setError] = useState("");
 
   const onInputChange = event => {
@@ -26,12 +29,19 @@ function App() {
         const nodeIDs = [];
         const urls = [];
 
-        data.data.forEach(el => {
-          // Need to make sure that each node has a corresponding URL with this data structure
-          nodeIDs.push(el.node_id);
-          urls.push(el.url);
-        })
-
+        // If a successful GET request is made, an array of results will be returned. 
+        // Otherwise it will be a strin 
+        if (Array.isArray(data.data)) {
+          data.data.forEach(el => {
+            // Need to make sure that each node has a corresponding URL with this data structure
+            nodeIDs.push(el.node_id);
+            urls.push(el.url);
+          })
+        } else {
+          setError("An error occurred. Please reach out to me at Prabh.M.Singh@student.uts.edu.au with a screenshot of this error");
+        }
+        setResult([]);
+        setShowLoader("inline-block");
         computePagerank(nodeIDs, urls);
       }
     });
@@ -66,7 +76,7 @@ function App() {
           // Clear inEdges when moving onto new node
           inEdges.length = 0;
 
-          await API.getInEdges(nodeIDs[i]).then(response => {
+          await API.getInEdges(nodeIDs[i]).then(async response => {
 
               if (response.data.length !== 0) {
               nodeHasInEdges = true;
@@ -75,8 +85,8 @@ function App() {
               })
               // console.log(inEdges);
               } else {
-              // If node has no incoming edges, move onto next node
-              nodeHasInEdges = false;
+                // If node has no incoming edges, move onto next node
+                nodeHasInEdges = false;
               }
           })
 
@@ -89,11 +99,11 @@ function App() {
           // Find number of outgoing edges node with incoming edge has (degree)
           for (let j=0; j<inEdges.length; j++) {
               await API.getOutEdges(inEdges[j]).then(response => {
-              // console.log(response.data[0].degree);
-              // nodesWithInEdges.push({[inEdges[i]]: {degree: response.data[0].degree, pagerank: initialPagerank}});
-              let valueObj = initialPagerank/response.data[0].degree;
-              // let valueObjToFraction = fraction(valueObj.n + '/' + valueObj.d);
-              pagerankDivideByDegree.push(valueObj); 
+                // console.log(response.data[0].degree);
+                // nodesWithInEdges.push({[inEdges[i]]: {degree: response.data[0].degree, pagerank: initialPagerank}});
+                let valueObj = initialPagerank/response.data[0].degree;
+                // let valueObjToFraction = fraction(valueObj.n + '/' + valueObj.d);
+                pagerankDivideByDegree.push(valueObj); 
               })
           }
 
@@ -121,6 +131,7 @@ function App() {
 
       // Display results on the webpage
       setError("");
+      setShowLoader("none");
       setResult(sortedFinalPageRankings); 
 
       })
@@ -128,25 +139,41 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Google Search Prototype</h1>
+      <h1>
+        <span style={{color: "blue"}}>G</span>
+        <span style={{color: "red"}}>o</span>
+        <span style={{color: "orange"}}>o</span>
+        <span style={{color: "blue"}}>g</span>
+        <span style={{color: "green"}}>l</span>
+        <span style={{color: "red"}}>e</span> (<i>Prototype</i>)</h1>
+      <Alert severity="warning">It will take a bit of time for the results to load. Thank you for your patience :)</Alert>
+      <br></br>
       <Grid container spacing={3}>
         <Grid item xs={12} style={{margin: "auto"}}>
           <input type="url" value={search} onChange={onInputChange}></input>
           <button onClick={() => {
-            getKeywordSpecificUrls(search);
+            getKeywordSpecificUrls(search.trim());
           }}>Search</button>
         </Grid>
       </Grid>
+      <br></br>
+      <div class="totalPages">
+          <b>Total Pages:  <i>{result.length}</i></b>
+      </div>
+      <CircularProgress style={{display: showLoader}} />
       <ul type="none" className="search-result">
         {result.map(el => {
-          return <li key={el.nodeID}><a href={el.url}>{el.url}</a></li>;
+          return <li key={el.nodeID}>
+            <a href={el.url}>{el.url}</a>
+            <p>Pagerank: {el.pagerank}</p>
+          </li>;
         })}
       </ul>
       <ul type="none" className="search-result-error">
         <div>{error}</div>
       </ul>
       <div className="footer">
-        <h3>Prabh Singh, Trisha Raibal</h3>
+        <h3>Prabh Singh (13250093), Trisha Raibal (13472980)</h3>
       </div>
     </div>
   );

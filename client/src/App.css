@@ -1,11 +1,12 @@
 .App {
   text-align: center;
+  overflow-x: hidden;
 }
 
 .footer {
   background-color: black;
   color: white;
-  position: relative;
+  position: fixed;
   bottom: 0;
   width: 100%;
   font-style: italic;
@@ -17,7 +18,22 @@
   padding: 10px 0px 10px 0px;
 } */
 
+.search-result {
+  margin-bottom: 230px;
+}
 .search-result li {
   text-align: left;
   margin-bottom: 10px;
+}
+
+.search-result li p {
+  margin-top: 0px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.totalPages {
+  text-align: right;
+  margin-right: 40px;
+  font-size: 20px;
 }
