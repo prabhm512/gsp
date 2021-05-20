@@ -28,9 +28,8 @@ function App() {
     API.getKeywordSpecificUrls(keywords).then(data => {
       // Compute Pagerank if urls are returned
       if (data.data.length === 0) {
-        console.log("test");
         setResult([]);
-        setError("There are no results for " + keywords.join(" ") + ". Check your spelling or try different keywords.");
+        setError("There are no results for " + keywords + ". Check your spelling or try different keywords.");
       } else {
     
         const nodeIDs = [];
@@ -41,7 +40,7 @@ function App() {
         if (Array.isArray(data.data)) {
           data.data.forEach(el => {
             // Need to make sure that each node has a corresponding URL with this data structure
-            nodeIDs.push(el.node_id);
+            nodeIDs.push(el.nodeID);
             urls.push(el.url);
           })
         } else {
@@ -58,7 +57,7 @@ function App() {
   // ----------------Pagerank Computation (wihtout scaling factor)---------------- //
 
   // Round 0 and 1 of pagerank iterations
-  const computePagerank = (nodeIDs, urls) => {
+  const computePagerank = async (nodeIDs, urls) => {
     // Suppose X is the node for which Pagerank is required to be computed 
 
     // Store all node ID's with an incoming edge to X
@@ -73,59 +72,59 @@ function App() {
     // Store degree and pagerank of these nodes
     // const nodesWithInEdges = [];
 
-    API.getNodeCount().then(async response => {
-      // Store the number of nodes present in the database
-      let nodeCount = response.data[0].node_count;
-      // Compute initial page rank
-      let initialPagerank = 1/nodeCount;
-      let nodeHasInEdges = false;
-      // Find all the incoming edges X has
-      for (let i=0; i<nodeIDs.length; i++) {
-          // Clear inEdges when moving onto new node
-          inEdges.length = 0;
+    // Store the number of nodes present in the database
+    let nodeCount = 6256;
 
-          await API.getInEdges(nodeIDs[i]).then(async response => {
+    // Compute initial page rank
+    let initialPagerank = 1/nodeCount;
 
-              if (response.data.length !== 0) {
+    let nodeHasInEdges = false;
+    // Find all the incoming edges X has
+    for (let i=0; i<nodeIDs.length; i++) {
+        // Clear inEdges when moving onto new node
+        inEdges.length = 0;
+
+        await API.getInEdges(nodeIDs[i]).then(async response => {
+            if (response.data.length !== 0) {
               nodeHasInEdges = true;
               response.data.forEach((el) => {
-                  inEdges.push(el.start_id);
-              })
-              // console.log(inEdges);
-              } else {
-                // If node has no incoming edges, move onto next node
-                nodeHasInEdges = false;
-              }
-          })
+              inEdges.push(el.start_id);
+            })
+            // console.log(inEdges);
+            } else {
+              // If node has no incoming edges, move onto next node
+              nodeHasInEdges = false;
+            }
+        })
 
-          // If there are no incoming edges, pagerank is 0
-          if (nodeHasInEdges === false) {
-              finalPageRanks.push({nodeID: nodeIDs[i], url: urls[i], pagerank: 0})
-              continue;
-          }
+        // If there are no incoming edges, pagerank is 0
+        if (nodeHasInEdges === false) {
+            finalPageRanks.push({nodeID: nodeIDs[i], url: urls[i], pagerank: 0})
+            continue;
+        }
 
-          // Find number of outgoing edges node with incoming edge has (degree)
-          for (let j=0; j<inEdges.length; j++) {
-              await API.getOutEdges(inEdges[j]).then(response => {
-                // console.log(response.data[0].degree);
-                // nodesWithInEdges.push({[inEdges[i]]: {degree: response.data[0].degree, pagerank: initialPagerank}});
-                let valueObj = initialPagerank/response.data[0].degree;
-                // let valueObjToFraction = fraction(valueObj.n + '/' + valueObj.d);
-                pagerankDivideByDegree.push(valueObj); 
-              })
-          }
+        // Find number of outgoing edges node with incoming edge has (degree)
+        for (let j=0; j<inEdges.length; j++) {
+            await API.getOutEdges(inEdges[j]).then(response => {
+              // console.log(response.data[0].degree);
+              // nodesWithInEdges.push({[inEdges[i]]: {degree: response.data[0].degree, pagerank: initialPagerank}});
+              let valueObj = initialPagerank/response.data[0].degree;
+              // let valueObjToFraction = fraction(valueObj.n + '/' + valueObj.d);
+              pagerankDivideByDegree.push(valueObj); 
+            })
+        }
 
-          // Add pagerank/degree of all nodes with incoming edges if there is more than 1 node with an incoming edge to X
-          if (pagerankDivideByDegree.length > 1) {
-              let addValues = add(...pagerankDivideByDegree);
-              // let addValuesToFraction = addValues.n + '/' + addValues.d;
+        // Add pagerank/degree of all nodes with incoming edges if there is more than 1 node with an incoming edge to X
+        if (pagerankDivideByDegree.length > 1) {
+            let addValues = add(...pagerankDivideByDegree);
+            // let addValuesToFraction = addValues.n + '/' + addValues.d;
 
-              finalPageRanks.push({nodeID: nodeIDs[i], url: urls[i], pagerank: addValues});
-          } else {
-              // finalPageRanks.push({[nodeIDs[i]]: {pagerank: pagerankDivideByDegree[0].n + "/" + pagerankDivideByDegree[0].d}});
-              finalPageRanks.push({nodeID: nodeIDs[i], url: urls[i], pagerank: pagerankDivideByDegree[0]});
-          }  
-      }
+            finalPageRanks.push({nodeID: nodeIDs[i], url: urls[i], pagerank: addValues});
+        } else {
+            // finalPageRanks.push({[nodeIDs[i]]: {pagerank: pagerankDivideByDegree[0].n + "/" + pagerankDivideByDegree[0].d}});
+            finalPageRanks.push({nodeID: nodeIDs[i], url: urls[i], pagerank: pagerankDivideByDegree[0]});
+        }  
+    }
 
       // console.log(finalPageRanks);
 
@@ -141,14 +140,7 @@ function App() {
       setError("");
       setShowLoader("none");
       setResult(sortedFinalPageRankings); 
-
-      })
-    }
-
-    // const handleKeypress = event => {
-    //   //it triggers by pressing the enter key
-      
-    // };
+  }
 
   return (
     <div className="App">
@@ -171,8 +163,7 @@ function App() {
               style={{margin: "0px 5px"}} 
               onClick={(event) => {
                 event.preventDefault();
-                const wordsArr = search.split(" ");
-                getKeywordSpecificUrls(wordsArr);
+                getKeywordSpecificUrls(search);
               }}>Search</Button>
             <Button variant="contained" color="secondary" onClick={() => {
               window.location.reload();

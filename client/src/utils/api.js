@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const methods = {
-    getNodeCount: () => {
-        return axios.get("/api/node-count");
-    },
+    // getNodeCount: () => {
+    //     return axios.get("/api/node-count");
+    // },
     getKeywordSpecificUrls: (keywords) => {
         return axios.get("/api/nodes/" + keywords);
     },
