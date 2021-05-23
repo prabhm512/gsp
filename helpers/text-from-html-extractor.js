@@ -29,10 +29,10 @@ function cleanString(dirty) {
     return clean;
 }
                 
-fs.createReadStream('./data/valid-urls-with-keywords.csv')
+fs.createReadStream('./data/gsp_url_mapping1.csv.csv')
     .pipe(csv())
     .on('data', async (row) => {
-
+        // console.log(row);
         const $ = cheerio.load(row.keywords);
         
         // Remove all head tags in html

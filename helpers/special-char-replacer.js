@@ -11,9 +11,10 @@ let cntr = 0;
 
 // const dataArr = [];
 
-fs.createReadStream('./data/valid-urls-with-keywords-shortened.csv')
+fs.createReadStream('./data/gsp_url_mapping1.csv')
     .pipe(csv())
     .on('data', async (row) => {
+        // console.log(row);
         let keywords = row.keywords.toString();
         // Replace all special characters with ""  
         let keywordsWithoutSpecialChars = keywords.replace(/[^\w\s]/gi,"");

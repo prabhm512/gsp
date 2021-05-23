@@ -17,6 +17,7 @@ let invalidCntr = 0;
 fs.createReadStream('data/gsp_url_mapping1.csv')
     .pipe(csv())
     .on('data', async (row) => {
+        // console.log(row);
         // Convert url to string
         let url = row.url.toString();
 
@@ -24,12 +25,11 @@ fs.createReadStream('data/gsp_url_mapping1.csv')
             if (response.status == 200) {
                 
                 validCntr++;
-                console.log(row);
 
                 // Write records
                 // Add new column that conatains source code of valid url
-                // writer.write({node_id: row.node_id, url: row.url, createdAt: row.createdAt, updatedAt: row.updatedAt, html: response.data})
-                console.log(response);
+                writer.write({node_id: row.node_id, url: row.url, html: response.data})
+                // console.log(response);
             }
         }).catch(err => {
             // Increment invalid url counter

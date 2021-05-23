@@ -11,9 +11,10 @@ let cntr = 0;
 
 // const dataArr = [];
 
-fs.createReadStream('./data/valid-urls.csv')
+fs.createReadStream('./data/gsp_url_mapping1.csv')
     .pipe(csv())
     .on('data', async (row) => {
+        // console.log(row);
         const meta = await getMeta(row.html);
 
         if (meta.keywords) {

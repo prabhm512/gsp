@@ -1,12 +1,8 @@
 // *********************************************************************************
 // Server.js - This file is the initial starting point for the Node/Express server.
 // *********************************************************************************
-
-require("dotenv").config();
-
 const express = require("express");
 const path = require("path");
-const db = require("./models");
 const bodyParser = require("body-parser");
 const cors = require('cors');
 const logger = require("morgan");
@@ -51,8 +47,6 @@ app.use((req, res, next) => {
     next();
 });
 
-db.sequelize.sync({ force: false }).then(() => {
-    app.listen(PORT, () => {
-        console.log("App listening on PORT " + PORT);
-    });
+app.listen(PORT, () => {
+    console.log("App listening on PORT " + PORT);
 });

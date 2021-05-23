@@ -151,7 +151,7 @@ function App() {
         <span style={{color: "blue"}}>g</span>
         <span style={{color: "green"}}>l</span>
         <span style={{color: "red"}}>e</span> (<i>Prototype</i>)</h1>
-      <Alert severity="warning">It will take a bit of time for the results to load. Thank you for your patience :)</Alert>
+      <Alert severity="warning">Please refresh the page if a loader is not triggered on clicking the search button. It will take a bit of time for the results to appear.</Alert>
       <br></br>
       <Grid container spacing={3}>
         <Grid item xs={12} style={{margin: "auto"}}>
